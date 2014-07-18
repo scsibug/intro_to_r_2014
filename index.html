@@ -16,6 +16,8 @@
 
     <link rel="stylesheet" href="css/reveal.min.css">
     <link rel="stylesheet" href="css/theme/default.css" id="theme">
+   <!-- <link rel="stylesheet" href="css/reset.css"> -->
+
 
     <!-- For syntax highlighting -->
     <link rel="stylesheet" href="lib/css/zenburn.css">
@@ -39,37 +41,36 @@
   <body>
 
     <div class="reveal">
-
+<!--      <header style="position: absolute;top: 50px; left: 100px; z-index:500; font-size:100px;background-color: rgba(0,0,0,0.5)"></header>
+-->
       <!-- Any section element inside of this container is displayed as a slide -->
       <div class="slides">
 	<section data-background="img/trees.jpg" style="background: rgba(0,129,195,.9); color: white" id="presentable" class="bookend">
 	  <h1>R</h1>
-	  <h3>Intro to Data Analysis</h3>
+	  <h3>Intro to Data Analysis and Visualization</h3>
 	  <p>
-	    <small>Created by Greg Heartsfield</small>
+	    <small>Greg Heartsfield, 2014</small>
 	  </p>
 	</section>
-	<section>
-	  <h2>What is R</h2>
-<iframe width="502" height="306" src="//www.youtube.com/embed/TR2bHSJ_eck" frameborder="0" allowfullscreen></iframe>
-	</section>
 
-	<section>
-	  <h2>What is R</h2>
-	  <ul>
-            <li>Free software environment for statistical computing, 20 years of development.</li>
-            <li>Strongly influenced by the S language, created in 1976.</li>
-            <li>Focused on statistics and visualization.</li>
-            <li>Runs on all modern platforms.</li>
-            <li>Competes strongly with high-end commercial packages like SPSS and SAS.</li>
-            <li>Taught in universities, used in mission-critical applications</li>
-	  </ul>
-<!--
-	  <aside class="notes">
-	    Oh hey, these are some notes. They'll be hidden in your presentation, but you can see them if you open the speaker notes window (hit 's' on your keyboard).
-	  </aside>
--->
-	</section>
+        <section>
+	  <section>
+	    <h2>What is R</h2>
+            <iframe width="502" height="306" src="//www.youtube.com/embed/TR2bHSJ_eck" frameborder="0" allowfullscreen></iframe>
+	  </section>
+
+	  <section>
+	    <h2>What is R</h2>
+	    <ul>
+              <li>Free software environment for statistical computing, 20 years of development.</li>
+              <li>Strongly influenced by the S language, created in 1976.</li>
+              <li>Focused on statistics and visualization.</li>
+              <li>Runs on all modern platforms.</li>
+              <li>Competes strongly with high-end commercial packages like SPSS and SAS.</li>
+              <li>Taught in universities, used in mission-critical applications</li>
+	    </ul>
+	  </section>
+        </section>
 
         <section>
           <section>
@@ -79,6 +80,7 @@
               <li>Automation - Script analysis and graphics creation</li>
               <li>Complexity - Flexible data cleanup, sophisticated algorithms for analysis</li>
               <li>Accuracy - <a href="http://panko.shidler.hawaii.edu/SSR/Mypapers/whatknow.htm">&quot;Spreadsheets, even after careful development, contain errors in 1% or more of all formula cells&quot;</a></li>
+              <li>Auditability - Data + Script is 100% repeatable and transparent</li>
               <li>Visualization - Exploratory to publication quality graphics</li>
 	    </ul>
           </section>
@@ -86,11 +88,172 @@
             <h2>Why Excel?</h2>
             <ul>
               <li>Manual data entry</li>
-              <li>One-off simple calculation</li>
+              <li>One-off simple calculations</li>
+              <li>You <i>really</i> need that 3-D pie chart</li>
+              <li>Results unlikely to influence important decisions</li>
 	    </ul>
           </section>
           
 	</section>
+
+        <section>
+          <h2>Installing R</h2>
+          <p><a href="http://cran.rstudio.com/bin/windows/base/">Download R for Windows</a></p>
+          <p><a href="http://cran.rstudio.com/bin/windows/base/">Download RStudio IDE</a> (optional, requires R)</p>
+        </section>
+
+        <section>
+          <section>
+            <h2>The R(Studio) Environment</h2>
+            <img src="img/rstudio_overview.png">
+          </section>
+          <section>
+            <h2>Being Productive</h2>
+            <ul>
+              <li>Organize data, scripts, and plots in the same directory</li>
+              <li>Session &raquo; Set Working Directory &raquo; To Source File Location</li>
+              <li>Pick a way of working:</li>
+              <ul>
+                <li>explore with console, saving the good bits into a script</li>
+                <li>everything in console, run savehistory() and keep the good bits at the end</li>
+              </ul>
+            </ul>
+          </section>
+        </section>
+
+        <section>
+            <h2>Experimenting with the Console</h2>
+          <section>
+
+            <p>R can add</p>
+            <pre><code class="lang-r">
+&gt; 1.9+1
+[1] 2.9
+            </code></pre>
+          </section>
+
+          <section>
+            <p>R can add vectors...</p>
+            <pre><code class="lang-r">
+&gt; c(1,10) + c(2,20)
+[1]  3 30
+            </code></pre>
+
+            <p>store and recall variables,</p>
+            <pre><code class="lang-r">
+&gt; odds <- seq(from=1, to=30, by=2)
+&gt; odds
+ [1]  1  3  5  7  9 11 13 15 17 19 21 23 25 27 29
+            </code></pre>
+            <p>and summarize them.</p>
+            <pre><code class="lang-r">
+&gt; summary(x)
+   Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
+      1       8      15      15      22      29 
+            </code></pre>
+          </section>
+
+          <section>
+            <p>Variables can be listed and deleted</p>
+            <pre><code class="lang-r">
+&gt; ls()
+[1] "odds"
+&gt; rm(odds)
+            </code></pre>
+
+            <p>Misc. other commands</p>
+            <pre><code class="no-highlight">
+&gt; history()    # list all commands entered
+&gt; ?name        # show online help for package or function "name"
+&gt; ??name       # search online help for anything containing "name"
+&gt; help.start() # browse a local webserver hosting the R manual/reference
+            </code></pre>
+          </section>
+
+        </section>
+
+        <section>
+          <section>
+            <h2>Loading Data</h2>
+            <p>R has dozens of ways to import your data.  Text, databases, binary files, Excel, network services, etc.</p>
+            <p><code>read.csv()</code> is what you need 99% of the time for delimited text under ~1GB.</p>
+          </section>
+
+          <section>
+            <h2>Loading CSV (simple)</h2>
+            <p><pre><code class="no-highlight">
+first,last
+max,theiler
+john,enders
+            </code></pre></p>
+            <p><pre><code class="lang-r">
+&gt; read.csv("names.csv")
+              </code></pre></p>
+            <p><pre><code class="no-highlight">
+  first    last
+1   max theiler
+2  john  enders
+              </code></pre></p>
+          </section>
+          <section>
+            <h2>Loading CSV, pt2</h2>
+            <p><pre><code class="no-highlight">
+Some uncommented junk in the header
+max  $  theiler $ 1899$US$"Delimiter $ in quotes"
+# just a comment followed by a blank line
+
+john $  enders  $ 1897$ZA$
+            </code></pre></p>
+            <p><pre><code class="lang-r">
+&gt; read.csv("names2.csv",
+         header=FALSE, sep="$", skip=1, strip.white=TRUE, comment.char="#",
+         col.names=c("first","last","birth.year","birth.country","comment"))
+            </code></pre></p>
+            <p><pre><code class="no-highlight">
+  first    last birth.year birth.country               comment
+1   max theiler       1899            US Delimiter $ in quotes
+2  john  enders       1897            ZA
+            </code></pre></p>
+          </section>
+
+          <section>
+            <h2>Loading CSV, pt3</h2>
+            <p>Override default types</p>
+            <p><pre><code class="no-highlight">
+userid,name,age,phone
+100,max,45,555-0000
+101,john,22,555-2222
+            </code></pre></p>
+            <p><pre><code class="lang-r">
+&gt; x <- read.csv("names3.csv", 
+                colClasses=c("character", "factor", "numeric", "character"))
+            </code></pre></p>
+            <p>Check the structure</p>
+            <p><pre><code class="lang-r">
+&gt; str(x)
+'data.frame':	2 obs. of  4 variables:
+ $ userid: chr  "100" "101"
+ $ name  : Factor w/ 2 levels "john","max": 2 1
+ $ age   : num  45 22
+ $ phone : chr  "555-0000" "555-2222"
+            </code></pre></p>
+          </section>
+
+        </section>
+
+<section>
+  <h2>Data Types</h2>
+  
+</section>
+
+<!-- Overview -->
+<!--
+
+Loading data
+data types
+
+-->
+
 
 	<section>
 	  <h2>Slides</h2>
@@ -366,7 +529,7 @@
       controls: true,
       progress: true,
       history: true,
-      center: true,
+      center: false,
 
       theme: Reveal.getQueryHash().theme, // available themes are in /css/theme
       transition: Reveal.getQueryHash().transition || 'default', // default/cube/page/concave/zoom/linear/fade/none
