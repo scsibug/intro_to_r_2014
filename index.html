@@ -56,7 +56,7 @@
         <section>
 	  <section>
 	    <h2>What is R</h2>
-            <iframe width="502" height="306" src="//www.youtube.com/embed/TR2bHSJ_eck" frameborder="0" allowfullscreen></iframe>
+            <iframe width="820" height="500" src="//www.youtube.com/embed/TR2bHSJ_eck" frameborder="0" allowfullscreen></iframe>
 	  </section>
 
 	  <section>
@@ -241,20 +241,37 @@ userid,name,age,phone
 
         </section>
 
-<section>
-  <h2>Data Types</h2>
-  
-</section>
+        <section>
+          <h2>Data Types</h2>
+          <section>
+            <h3>Atomic Types</h3>
+            <table>
+              <tr><th>Type</th><th>Representation</th><th>Examples</th></tr>
+              <tr><td>integer</td> <td>32-bit long (warns on overflow)</td> <td>1382504927</td></tr>
+              <tr><td>numeric</td> <td>64-bit double, floating point</td> <td>4.527471e+30</td></tr>
+              <tr><td>character</td> <td>UTF-8 supported, auto-caching</td> <td>"this is a string"</td></tr>
+              <tr><td>logical</td> <td>32-bit</td> <td><code>TRUE</code> and <code>FALSE</code></td></tr>
+            </table>
+          </section>
+          <section>
+            <h3>Data Objects</h3>
+            <ul>
+              <li>vector: sequence of values of the same type</li>
+              <ul><li><pre><code class="lang-r">c(1,2,3,4)</code></pre></li></ul>
+              <li>list: collection of values of different types</li>
+              <ul><li><pre><code class="lang-r">list("one", "two", 3, 4.0)</code></pre></li></ul>
+              <li>factor: mapping from names to numbers</li>
+              <ul><li><pre><code class="lang-r">factor("TX", "CA", "NY")</code></pre></li></ul>
+              <li>data.frame: similar to a relational database table</li>
+              <ul><li><pre><code class="lang-r">data.frame(state=c("TX", "CA"), pop.mil=c(25, 39))</code></pre></li></ul>
+            </ul>
+          </section>
+        </section>
 
-<!-- Overview -->
-<!--
-
-Loading data
-data types
-
--->
-
-
+        <section>
+          <h2>Case Study 1 (Using Data Frames)</h2>
+          <p>
+        </section>
 	<section>
 	  <h2>Slides</h2>
 	  <p>
@@ -486,7 +503,7 @@ data types
 	<section>
 	  <h2>Export to PDF</h2>
 	  <p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, below is an example that's been uploaded to SlideShare.</p>
-	  <iframe id="slideshare" src="http://www.slideshare.net/slideshow/embed_code/13872948" width="455" height="356" style="margin:0;overflow:hidden;border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen> </iframe>
+	  <iframe id="slideshare" src="http://www.slideshare.net/slideshow/embed_code/13872948" width="766" height="600" style="margin:0;overflow:hidden;border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen> </iframe>
 	  <script>
 	    document.getElementById('slideshare').attributeName = 'allowfullscreen';
 	  </script>
