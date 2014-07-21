@@ -22,10 +22,12 @@ s <-read.table("treasurehunt_alpha_httpd_access.log",
 # lets assign some names
 colnames(s) <- c("client", "identd", "userid", "date.1", "date.2", "request", "status", "size", "referrer", "useragent")
 # we don't expect to get any value out of the "identd" column, so lets delete it
+stopifnot(is.na(s$identd))
 s$identd <- NULL
 # Lets see if we can get rid of userid too:
 summary(s$userid)
 # no logged in users for any of these logs, so delete this as well
+stopifnot(is.na(s$userid))
 s$userid <- NULL
 # examine the first few entries again with head()
 head(s)
@@ -71,7 +73,15 @@ table(s.loc$city, useNA="ifany")
 # Now our data is in decent shape, and we can get learn from it:
 
 # Various summary statistics (request count, total data, average request size) for each country in the logs
-ddply(s.loc, .(country.code), summarize, size.total=sum(size, na.rm=TRUE), size.mean=mean(size, na.rm=TRUE), request.count=length(size))
+ddply(s.loc, .(country.code), summarize,
+      size.total=sum(size, na.rm=TRUE), 
+      size.mean=mean(size, na.rm=TRUE), 
+      request.count=length(size))
 
 # Max response size for each status code
 ddply(s.loc, .(status), summarize, size.max=max(size, na.rm=TRUE))
+
+# find the top-5 hosts by number of requests made
+host.requests <- ddply(s.loc, .(host), summarize, request.count=length(host))
+hosts.requests <- host.requests[order(host.requests$request.count, decreasing=TRUE),]
+head(hosts.requests, n=5)

@@ -176,7 +176,12 @@
           <section>
             <h2>Loading Data</h2>
             <p>R has dozens of ways to import your data.  Text, databases, binary files, Excel, network services, etc.</p>
-            <p><code>read.csv()</code> is what you need 99% of the time for delimited text under ~1GB.</p>
+            <ul>
+            <li><code>read.csv()</code> is what you need 99% of the time for small comma-delimited text (~500MB)</li>
+            <li><code>read.table()</code> has better defaults for space-delimited text.</li>
+            <li><code>read.csv.sql()</code> reads data into SQLite, then uses an SQL select query to bring a portion into R. (fast)</li>
+            <li><code>fread()</code> in the <code>data.table</code> package for multi-GB files. (fastest)</li>
+            </ul>
           </section>
 
           <section>
@@ -269,9 +274,65 @@ userid,name,age,phone
         </section>
 
         <section>
+          <section>
           <h2>Case Study 1 (Using Data Frames)</h2>
-          <p>
+          <blockquote>The UCSB International Capture The Flag (also known as the iCTF) is a distributed, wide-area security exercise, whose goal is to test the security skills of the participants.</blockquote>
+          <p>The 2002 contest includes system logs from machines under attack, we'll use the HTTP logs here to investigate loading and analyzing real-world data, primarily to understand how to work with dataframes.</p>
+          </section>
+          <section>
+            <h2>First Look</h2>
+            <p>If you suspect delimited data, start with <code>read.csv</code> and peek at the first few rows.</p>
+            <p><pre><code class="lang-r">
+s <-read.csv("treasurehunt_alpha_httpd_access.log",nrows=5)                  
+            </code></pre></p>
+            <p>Use <code>View(s)</code> to see the raw data.  Datatypes are shown with <code>str(s)</code>.</p>
+            <p>Issues noted: no header, space delimited, "-" for blanks, missing fields...</p>
+          </section>
+          <section>
+            <h2>Reading Full Dataset</h2>
+            <p><pre><code class="lang-r">
+s <-read.table("treasurehunt_alpha_httpd_access.log",
+               fill=TRUE,                # missing elements set as blank
+               na.strings = "-",         # "-" set to NA
+               stringsAsFactors = FALSE) # do not use factors
+            </code></pre></p>
+            <p>Get a better look at identified columns, and assign names<p>
+            <p><pre><code class="lang-r">
+colnames(s) <- c("client", "identd", "userid",
+                 "date.1", "date.2", "request",
+                 "status", "size",
+                 "referrer", "useragent")
+            </code></pre></p>
+          </section>
+          <section>
+            <h2>Discarding Data</h2>
+            <p>If we have data we know will not be used, go ahead and discard it early on.</p>
+            <p><pre><code class="lang-r">
+> summary(s$identd)
+   Mode    NA's 
+logical    2522 
+            </code></pre></p>
+            <p>Set a check so that the script will error out if we ever encounter values here.  Then, we can confidently delete it.</p>
+            <p><pre><code class="lang-r">
+stopifnot(is.na(s$identd))
+            </code></pre></p>
+            <p><pre><code class="lang-r">
+s$identd <- NULL
+            </code></pre></p>
+          </section>
+          <section>
+            <h2>Parsing Dates</h2>
+            <p><pre><code class="lang-r">
+# Combine date components
+s$req.date <- apply(s[,c("date.1","date.2")], 1, paste, collapse=" ")
+# Parse these as real dates:
+s$req.date <- as.POSIXct(strptime(s$req.date, "[%d/%b/%Y:%T %z]"))
+# Delete the old date columns
+s[,c("date.1","date.2")] <- list(NULL)
+            </code></pre></p>
+          </section>
         </section>
+
 	<section>
 	  <h2>Slides</h2>
 	  <p>
