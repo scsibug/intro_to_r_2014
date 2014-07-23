@@ -51,37 +51,37 @@ s$size <- with(s, ifelse(is.na(size),yes=0,no=size))
 # Goal, include geographical data about clients.
 # An additional dataset, "treasure_hunt_geoip.csv" is provided that maps IPs into hostnames and locations.
 # explicitly set factor and numeric types for data, blank strings are NA.
-geoip <- read.csv("treasure_hunt_geoip.csv", colClasses=c(rep("factor",5),rep("numeric",2)),na.strings="")
+geoip <- read.csv("treasure_hunt_geoip.csv", na.strings="", stringsAsFactors=FALSE)
 # We want to match by either IP or host, so expand the geoip dataframe to combine these columns
-# We will accomplish this by creating two copies of the data frame with a new "match" column that contains the IPs or the hostnames, and then combining them together with rbind
-geoip.ip <- geoip # make a copy of the dataframe
-geoip.host <- geoip # make another copy
-geoip.ip$match <- geoip$IP # set the match variable to IP addresses
-geoip.host$match <- geoip$host # set the match variable to hostnames
-geoip.match <- rbind(geoip.ip, geoip.host) # combine both dataframes together
-#### Same thing in a one-liner with plyr library
-#### geoip.match <- ddply(geoip, .(IP), function (x) {y<-x; z<-x; y$match<-y$IP; z$match<-z$host; rbind(y,z)})
-# delete items we are finished with
-rm(geoip.ip, geoip.host)
-# merge the "s" and "geoip.match" dataframes using the client and match columns, including everything from "s".
-s.loc <- merge(s,geoip.match, by.x="client", by.y="match", all.x=TRUE)
+# We will accomplish this by creating two copies of the data frame with a new "match" column that contains the IPs or the hostnames.
+geoip <- rbind(geoip,geoip) # duplicate each row
+geoip$match <- geoip$IP # assign the IP to a new "match" column
+half <- 1:nrow(geoip)/2 # list the first half of the row indexes
+#overwrite half of geoip$match with hostnames.  The other half have IPs.
+geoip[half,"match"] <- geoip[half,"host"]
+rm(half)
 
+#### Similar thing in a one-liner with plyr library
+#### geoip.match <- ddply(geoip, .(IP), function (x) {y<-x; z<-x; y$match<-y$IP; z$match<-z$host; rbind(y,z)})
+
+# merge the "s" and "geoip" dataframes using the client and match columns, including everything from "s".
+s.loc <- merge(s, geoip, by.x="client", by.y="match", all.x=TRUE)
 # Check how many requests come from each city
 table(s.loc$city, useNA="ifany")
 
 
-# Now our data is in decent shape, and we can get learn from it:
+# Now our data is in decent shape, and we can learn something from it:
+
+# Max response size for each status code
+ddply(s.loc, .(status), summarize, size.max=max(size))
 
 # Various summary statistics (request count, total data, average request size) for each country in the logs
-ddply(s.loc, .(country.code), summarize,
+ddply(s.loc, .(country.code, status), summarize,
       size.total=sum(size, na.rm=TRUE), 
       size.mean=mean(size, na.rm=TRUE), 
       request.count=length(size))
 
-# Max response size for each status code
-ddply(s.loc, .(status), summarize, size.max=max(size, na.rm=TRUE))
-
 # find the top-5 hosts by number of requests made
 host.requests <- ddply(s.loc, .(host), summarize, request.count=length(host))
-hosts.requests <- host.requests[order(host.requests$request.count, decreasing=TRUE),]
+hosts.requests <- host.requests[order(-host.requests$request.count),]
 head(hosts.requests, n=5)

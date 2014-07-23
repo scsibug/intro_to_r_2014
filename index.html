@@ -331,25 +331,197 @@ s$req.date <- as.POSIXct(strptime(s$req.date, "[%d/%b/%Y:%T %z]"))
 s[,c("date.1","date.2")] <- list(NULL)
             </code></pre></p>
           </section>
+          <section>
+            <h2>Categorical Variables</h2>
+            <p>HTTP status looks like a number, but we should not treat it like one.  Why?  Because taking the average makes no sense.  Reassign it as a categorical variable (a factor).
+            <p><pre><code class="lang-r">
+s$status <- factor(s$status)
+            </code></pre></p>
+          </section>
+          <section>
+            <h2>Rewriting Variables</h2>
+            <p>When no data was sent, this was recorded as a blank or <code>NA</code> value.  We know this really means "0 bytes sent", so we can rewrite the column.</p>
+            <p><code>with()</code> lets us refer to a dataframes variables with the <code>df$var</code> syntax.</p>
+            <p><code>ifelse()</code> runs a test on a vector, and replaces values based on whether the test was true.</p>
+            <p><pre><code class="lang-r">
+s$size <- with(s,
+                 ifelse(is.na(size),
+                        yes=0,
+                        no=size))
+            </code></pre></p>
+          </section>
+          <section>
+            <h2>Merging Datasets (prep)</h2>
+            <p>Often you will need to incorporate multiple datasets together for an analysis.</p>
+            <p>Lets read in another dataset, giving us GeoIP data for the IP's in the web logs.</p>
+            <p><pre><code class="lang-r">
+geoip <- read.csv("treasure_hunt_geoip.csv",
+                  na.strings="", stringsAsFactors=FALSE)
+            </code></pre></p>
+            <p><pre><code class="lang-r">
+> str(geoip)
+'data.frame':	40 obs. of  8 variables:
+ $ IP          : chr  "128.111.48.107" ...
+ $ host        : chr  "fleming.cs.ucsb.edu" ...
+ $ country.code: chr  "US" ...
+ $ city        : chr  "Santa Barbara" ...
+ $ postal.code : int  93106 10469 ...
+ $ longitude   : num  -120 ...
+ $ latitude    : num  34.4 ...
+ $ match       : chr  "fleming.cs.ucsb.edu" ...
+            </code></pre></p>
+          </section>
+          <section>
+            <h2>Merging Datasets (prep)</h2>
+            <p>One problem... our original dataset resolved some, but not all client addresses</p>
+            <p><pre><code class="lang-r">            
+geoip <- rbind(geoip,geoip) # duplicate all rows
+geoip$match <- geoip$IP # make a new "match" var from IP
+half <- 1:nrow(geoip)/2 # a sequence of half our rows
+# overwrite the IP with Host for half the rows
+geoip[half,"match"] <- geoip[half,"host"] 
+            </code></pre></p>
+          </section>
+          <section>
+            <h2>Merging Datasets</h2>
+            <p>We're finally ready to merge.  We'll use the equivalent of a left outer join.</p>
+            <p><pre><code class="lang-r">      
+s.loc <- merge(s,     # left "table"
+               geoip, # right "table"
+               by.x="client", # match this var
+               by.y="match",  # against this
+               all.x=TRUE)    # don't drop rows from s
+            </code></pre></p>
+            <p>Now, <code>s.loc</code> contains all the requests, along with location data.</p>
+            <p><pre><code class="lang-r">      
+> s.loc[50,c("client", "status", "city")]
+          client status          city
+50 128.111.43.25    304 Santa Barbara
+            </code></pre></p>
+          </section>
+          <section>
+            <h2>Tabulating</h2>
+            <p>Our first simple analysis... lets put our GeoIP data to work and understand how cities and HTTP status codes relate:</p>
+            <p><pre><code class="lang-r">      
+> table(s.loc$status, s.loc$city, useNA="ifany")
+     
+      Bronx King Of Prussia Santa Barbara &lt;NA&gt;
+  200     1               1           742    7
+  301     0               0             2    0
+  304     0               0            37    6
+  400     0               0            33    1
+  403     0               0            11    0
+  404     0               0          1668    0
+  405     0               0             2    0
+  408     0               0             2    0
+  501     0               0             9    0         
+          </code></pre></p>
+          </section>
         </section>
 
 	<section>
-	  <h2>Slides</h2>
-	  <p>
-	    Not a coder? No problem. There's a fully-featured visual editor for authoring these, try it out at <a href="http://slid.es" target="_blank">http://slid.es</a>.
-	  </p>
-	</section>
+          <section>
+	    <h2>Case Study 1A S-A-C</h2>
+	    <p>Now we have clean web logs, joined with some potentially useful location data.  We'll use a common technique for cleaning &amp; analysing data called "split-apply-combine" to do further analysis.</p>
+            <ul>
+              <li><b>Split:</b> create groups based on some common attribute.</li>
+              <li><b>Apply:</b> transform each group using a function (such as sum or average).</li>
+              <li><b>Combine:</b> bring the transformed groups back together in one structure.</li>
+            </ul>
+	  </section>
+          <section>
+	    <h2>Split-Apply-Combine Illust.</h2>
+            <img src="img/sac.png" width="60%" height="60%"/>
+          </section>
 
+          <section>
+	    <h2>Simple Example</h2>
+            <p><pre><code class="lang-r">
+ddply(s.loc, # dataset
+      .(status), # Split on HTTP status
+      summarize, # Function to Apply
+        max.response = max(size)) # Arguments
+            </code></pre></p>
+            <p><pre><code class="lang-r">
+  status max.response
+1    200        44192
+2    301          293
+3    304            0
+4    400          514
+5    403          298
+6    404          386
+7    405          310
+8    408            0
+9    501          332
+            </code></pre></p>
+          </section>
+
+          <section>
+	    <h2>Another Example</h2>
+            <p><pre><code class="lang-r">
+ddply(s.loc, .(country.code, status), summarize,
+      size.total=sum(size, na.rm=TRUE), 
+      size.mean=mean(size, na.rm=TRUE), 
+      request.count=length(size))
+            </code></pre></p>
+            <p><pre><code class="lang-r">
+   country.code status size.total size.mean request.count
+1            TW    400        318  318.0000             1
+2            US    200    1151179 1547.2836           744
+3            US    301        585  292.5000             2
+4            US    304          0    0.0000            37
+5            US    400      11587  351.1212            33
+6            US    403       2844  258.5455            11
+7            US    404     474735  284.6133          1668
+8            US    405        618  309.0000             2
+9            US    408          0    0.0000             2
+10           US    501        978  108.6667             9
+11         &lt;NA&gt;    200      30082 4297.4286             7
+12         &lt;NA&gt;    304          0    0.0000             6
+            </code></pre></p>
+          </section>
+
+        </section>
 	<section>
-	  <h2>Point of View</h2>
-	  <p>
-	    Press <strong>ESC</strong> to enter the slide overview.
-	  </p>
-	  <p>
-	    Hold down alt and click on any element to zoom in on it using <a href="http://lab.hakim.se/zoom-js">zoom.js</a>. Alt + click anywhere to zoom back out.
-	  </p>
-	</section>
+          <section>
+	    <h2>Case Study 2 (PCAP)</h2>
+	    <p>The 2nd dataset, also from UCSB iCTF, is 2.3GB of network captures (PCAP) taken during a capture-the-flag contest.</p>
+            <p><a href="http://ictf.cs.ucsb.edu/archive/iCTF_2003/setup.html">A network topology is provided.</a></p>
+            <img src="img/ctf-topology.png" width="60%" height="60%"/>
+	  </section>
+          <section>
+            <h2>Parsing PCAP</h2>
+            <p>R has no special tools for parsing PCAP, wireshark and snort are better tools for parsing network packets.  Here we extracted some basic IP, TCP, and HTTP attributes from the captures, resulting in about 6.9 million rows of tab-separated data.</p>
+            <p><pre><code class="lang-r">
+tshark -r ictf.pcap -T fields -e frame.time -e ip.src -e ip.dst -e ip.proto
+  -e tcp.srcport -e tcp.dstport -e http.request.method -e http.request.uri
+  -e http.host -e http.authorization -e http.connection -e http.cookie
+  -e http.response.code -e http.user_agent -E header=y -E separator=/t
+  -E quote=n -E occurrence=f > ictf2003.tsv
+               </code></pre></p>
+          </section>
 
+          <section>
+            <h2>Loading in R</h2>
+            <p>Data is easily readable in R, with some important additional flags to <code>read.table()</code>, and timestamp parsing.</p>
+            <p><pre><code class="lang-r">
+i <- read.table("ictf2003.tsv",
+                sep="\t",
+                header=TRUE,
+                na.strings="",
+                fill=TRUE,
+                nrows=1000000, # improve speed for testing
+                comment="", # appears in strings
+                colClasses=c("character", 
+                             rep("factor", 6), 
+                             "character",
+                             rep("factor", 6)))
+i$frame.time <- strptime(i$frame.time, "%b  %e, %Y %H:%M:%OS")
+               </code></pre></p>
+          </section>
+        </section>
+
+<!-- http://ictf.cs.ucsb.edu/archive/iCTF_2003/setup.html -->
 	<section>
 	  <h2>Works in Mobile Safari</h2>
 	  <p>
