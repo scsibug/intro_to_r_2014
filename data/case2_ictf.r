@@ -4,7 +4,7 @@ library(lubridate)
 i <- read.table("ictf2003.tsv",
                 sep="\t",
                 header=TRUE,  
-                #nrows=300000, #just read the first 1M rows for now
+                nrows=100000, #just read the first 100k rows for now
                 na.strings="",
                 fill=TRUE,
                 comment="", # appears in strings
@@ -23,12 +23,11 @@ ggsave(g, file="packets_per_minute_by_proto.png", width=8, height=4)
 g <- qplot(data=i.ppm, x=frame.minute, y=packets, geom="bar", stat="identity", fill=ip.proto)
 ggsave(g, file="stacked_packets_per_minute_by_proto.png", width=8, height=4)
 
-########### Plot HTTP traffic by Method and IP ###########
+########### Plot HTTP traffic by Method and IP ###########  
 # Fix inconsistent case for some Connection headers
 i$http.connection <- tolower(i$http.connection)
 # Only look at the subset of packets which have a method (requests) or status codes (responses)
 i.http <- i[((!is.na(i$http.request.method)) | !is.na(i$http.response.code)),]
-
 
 # Select frequently used HTTP methods
 i.http.method <- i.http[which(i.http$http.request.method %in% c("GET", "POST", "UPDATE", "HEAD")),]
@@ -43,18 +42,23 @@ g <- ggplot(i.http.method, aes(x=frame.time, y=ip.src ,color=http.request.method
   facet_wrap(~ http.request.method)
 ggsave(g, file="http_requests_by_method.all.png", width=24, height=20)
 
+########### Plot Top Source IP's HTTP traffic by Method and IP ###########
+# With lots of hosts, this has too many labels.
 # Lets do the same thing, but only show the top 5 source IPs
+
+# Tabulate source IP's by number of packets
 src.ip.counts <- as.data.frame(table(i.http.method$ip.src))
-top5.ips <- as.character(head(src.ip.counts[order(-src.ip.counts$Freq),],n=5)$Var1)
-# Filter the HTTP data
-i.top5.http <- i.http.method[i.http.method$ip.src %in% top5.ips,]
+# Order the tabulation by frequency, take the top 5, and just get the IP
+top5.ips <- head(src.ip.counts[order(-src.ip.counts$Freq),1],n=5)
+# Filter the HTTP data to only those requests where the source is in the top 5
+i.top5 <- i.http.method[i.http.method$ip.src %in% top5.ips,]
 # Plot a facet with each of the common HTTP methods, showing traffic for the top 5 source IPs
-g <- ggplot(i.top5.http, aes(x=frame.time, y=ip.src ,color=http.request.method))+
-  geom_jitter(size=0.7, alpha=0.7)+
-  facet_wrap(~ http.request.method) +
-  theme(legend.position="none") +
-  xlab("Frame Timestamp") + ylab ("Source IP")
+g <- ggplot(i.top5, aes(x=frame.time, y=ip.src ,color=http.request.method)) +
+  geom_jitter(size=0.7, alpha=0.7) +
+  facet_wrap(~http.request.method) +  # syntax is rows~columns
+  theme(legend.position="none") + # disable legend
+  xlab("Frame Timestamp") + ylab ("Source IP") # axis labels
 ggsave(g, file="top5.http_requests_by_method.all.png", width=8, height=4)
 
 # qplot version of the above, without the additional subsetting, and without some additional labelling
-qplot(frame.time, ip.src, data=i.top5.http, colour=http.request.method, facets=~http.request.method, geom="jitter")
+qplot(frame.time, ip.src, data=i.top5, colour=http.request.method, facets=~http.request.method, geom="jitter")

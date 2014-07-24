@@ -501,13 +501,19 @@ i$frame.time <- strptime(i$frame.time, "%b  %e, %Y %H:%M:%OS")</code></pre></p>
           </section>
           <section>
             <h2>Trellis Contd</h2>
-            <p>That's a really complicated plot to make, right?<p>
+            <p>That's a really complicated plot to make, right? It's not too bad...<p>
+<p>A bit of munging needed to find the top-5 source IPs:</p>
+<p><pre><code class="lang-r">src.ip.counts <- as.data.frame(table(i.http.method$ip.src))
+top5.ips &lt;- head(src.ip.counts[order(-src.ip.counts$Freq),1],n=5)
+i.top5 &lt;- i.http.method[i.http.method$ip.src %in% top5.ips,]</code></pre></p>
+<p>The plot itself is very simple:</p>
             <p><pre><code class="lang-r">qplot(frame.time,  # X-axis, time
       ip.src,      # Y-axis, source IP
       data=i.top5, # Dataset
       colour=http.request.method, # What to color
       geom="jitter" # How to draw data, "jittered points"
       facets=~http.request.method) # What to repeat in each facet</code></pre></p>
+
           </section>
         </section>
 <!--
