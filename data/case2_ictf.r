@@ -1,22 +1,34 @@
 library(ggplot2)
+library(plyr)
+library(lubridate)
 i <- read.table("ictf2003.tsv",
                 sep="\t",
                 header=TRUE,  
-                #nrows=30000, #just read the first 1M rows for now
+                #nrows=300000, #just read the first 1M rows for now
                 na.strings="",
                 fill=TRUE,
                 comment="", # appears in strings
                 colClasses=c("character", rep("factor", 6), "character", rep("factor", 6)))
 # Parse the time
 i$frame.time <- as.POSIXct(strptime(i$frame.time, "%b  %e, %Y %H:%M:%OS"))
+
+########### Plot traffic by protocol through duration of contest ###########
+# 7M packets is a lot... lets summarize it by packets/minute for each protocol (TCP, UDP, ICMP)
+i$frame.minute <- round_date(i$frame.time, "minute")
+i.ppm <- ddply(i, .(frame.minute, ip.proto), summarise, packets=length(ip.proto))
+# First, a simple line chart, overlaying all the protocols by color
+g <- qplot(data=i.ppm, y=packets, x=frame.minute, geom="line", colour=ip.proto)
+ggsave(g, file="packets_per_minute_by_proto.png", width=8, height=4)
+# Or, a stacked barchart.  Again, color indicates the protocol
+g <- qplot(data=i.ppm, x=frame.minute, y=packets, geom="bar", stat="identity", fill=ip.proto)
+ggsave(g, file="stacked_packets_per_minute_by_proto.png", width=8, height=4)
+
+########### Plot HTTP traffic by Method and IP ###########
 # Fix inconsistent case for some Connection headers
 i$http.connection <- tolower(i$http.connection)
 # Only look at the subset of packets which have a method (requests) or status codes (responses)
 i.http <- i[((!is.na(i$http.request.method)) | !is.na(i$http.response.code)),]
 
-# This graph shows the different http Connection headers, with traffic frequency per each source IP.
-#g <- ggplot(i.http, aes(x=frame.time, y=http.request.method ,color=http.user_agent)) + geom_jitter()# + facet_grid(. ~ http.connection)
-#ggsave(g,file="test.png", width=10)
 
 # Select frequently used HTTP methods
 i.http.method <- i.http[which(i.http$http.request.method %in% c("GET", "POST", "UPDATE", "HEAD")),]

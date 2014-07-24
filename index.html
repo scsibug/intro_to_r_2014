@@ -119,9 +119,12 @@
           <p><a href="http://cran.rstudio.com/bin/windows/base/">Download RStudio IDE</a> (optional, requires R)</p>
 <hr>
           <p>Install packages that we'll be using</p>
-          <ul>
-            <li><code>install.packages(c("plyr", "ggplot2"))</code></li>
-          </ul>
+          <p><pre><code class="lang-r">install.packages(c("plyr", "ggplot2", "lubridate"))</code></pre></p>
+<ul>
+<li><code>plyr</code> gives us powerful data manipulation tools</li>
+<li><code>ggplot2</code> makes beautiful visualizations</li>
+<li><code>lubridate</code> makes working with dates and time simple</li>
+</ul>
         </section>
 
         <section>
@@ -356,13 +359,13 @@ geoip[half,"match"] <- geoip[half,"host"]</code></pre></p>
           <section>
             <h2>Merging Datasets</h2>
             <p>We're finally ready to merge.  We'll use the equivalent of a left outer join.</p>
-            <p><pre><code class="lang-r">s.loc <- merge(s,     # left "table"
+            <p><pre><code class="lang-r">s.loc &lt;- merge(s,     # left "table"
                geoip, # right "table"
                by.x="client", # match this var
                by.y="match",  # against this
                all.x=TRUE)    # don't drop rows from s</code></pre></p>
             <p>Now, <code>s.loc</code> contains all the requests, along with location data.</p>
-            <p><pre><code class="lang-r">> s.loc[50,c("client", "status", "city")]
+            <p><pre><code class="lang-r">&gt; s.loc[50,c("client", "status", "city")]
           client status          city
 50 128.111.43.25    304 Santa Barbara</code></pre></p>
           </section>
@@ -457,13 +460,13 @@ geoip[half,"match"] <- geoip[half,"host"]</code></pre></p>
   -e http.cookie -e http.response.code
   -e http.user_agent -E header=y
   -E separator=/t -E quote=n
-  -E occurrence=f > ictf2003.tsv</code></pre></p>
+  -E occurrence=f &gt; ictf2003.tsv</code></pre></p>
           </section>
 
           <section>
             <h2>Loading in R</h2>
             <p>Data is easily readable in R, with some important additional flags to <code>read.table()</code>, and timestamp parsing.</p>
-            <p><pre><code class="lang-r">i <- read.table("ictf2003.tsv",
+            <p><pre><code class="lang-r">i &lt;- read.table("ictf2003.tsv",
                 sep="\t",
                 header=TRUE,
                 na.strings="",
@@ -475,16 +478,31 @@ geoip[half,"match"] <- geoip[half,"host"]</code></pre></p>
                              "character",
                              rep("factor", 6)))
 i$frame.time <- strptime(i$frame.time, "%b  %e, %Y %H:%M:%OS")</code></pre></p>
+                </section>
+          <section>
+            <h2>Line Charts</h2>
+            <p>The obvious first thing to look at is traffic by protocol.  Let us summarize packets/minute for each protocol on a plot.</p>
+            <p>Prep the data by creating a new variable for the timestamp, at 1-minute resolution:</p>
+            <p><pre><code class="lang-r">i$frame.minute <- round_date(i$frame.time, "minute")</code></pre></p>
+            <p>Group by the minute and protocol, and find how many packets exist for each grouping:</p>
+            <p><pre><code class="lang-r">i.ppm &lt;- ddply(i, .(frame.minute, ip.proto), 
+               summarise, packets=length(ip.proto))</code></pre></p>
+            <p>Line plot using our new variables, color by protocol:</p>
+            <p><pre><code class="lang-r">qplot(data=i.ppm, y=packets, x=frame.minute, geom="line", colour=ip.proto)</code></pre></p>
+                                                                                                                              </section>
+          <section>
+            <h2>Line Charts</h2>
+            <img src="img/plot_packets_per_minute_by_proto.png" width="100%" height="100%"/>
           </section>
           <section>
             <h2>Trellis/Faceted Plots</h2>
             <p>Facets, or "trellis" plots, are very useful with complex datasets that would otherwise have too much overlapping data to be legible.  Adding "jitter" to the data can also help when overlap would obscure data.</p>
-            <img src="data/plot_http.methods.top.5.src.ips.png" width="70%" height="70%"/>
+            <img src="img/plot_http.methods.top.5.src.ips.png" width="70%" height="70%"/>
           </section>
           <section>
             <h2>Trellis Contd</h2>
             <p>That's a really complicated plot to make, right?<p>
-<p><pre><code class="lang-r">qplot(frame.time,  # X-axis, time
+            <p><pre><code class="lang-r">qplot(frame.time,  # X-axis, time
       ip.src,      # Y-axis, source IP
       data=i.top5, # Dataset
       colour=http.request.method, # What to color
@@ -492,12 +510,11 @@ i$frame.time <- strptime(i$frame.time, "%b  %e, %Y %H:%M:%OS")</code></pre></p>
       facets=~http.request.method) # What to repeat in each facet</code></pre></p>
           </section>
         </section>
-
-<!-- http://ictf.cs.ucsb.edu/archive/iCTF_2003/setup.html -->
-	<section>
-          <img src="img/the_end.jpg">
+<!--
+	<section data-background="img/the_end.jpg" style="background: rgba(0,129,195,0); color: white">
+          <h2>Thank You!</h2>
 	</section>
-
+-->
       </div>
 
     </div>
