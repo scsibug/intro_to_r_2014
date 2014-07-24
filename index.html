@@ -45,14 +45,32 @@
 -->
       <!-- Any section element inside of this container is displayed as a slide -->
       <div class="slides">
-	<section data-background="img/trees.jpg" style="background: rgba(0,129,195,.9); color: white" id="presentable" class="bookend">
+	<section data-background="img/trees.jpg" style="background: rgba(0,129,195,.9); color: white">
 	  <h1>R</h1>
 	  <h3>Intro to Data Analysis and Visualization</h3>
 	  <p>
 	    <small>Greg Heartsfield, 2014</small>
 	  </p>
 	</section>
-
+        <section data-background="img/arch.jpg" style="background: rgba(50,50,50,.5); color: white">
+          <h2>Agenda, Goals &amp; AntiGoals</h2>
+          <ul>
+            <li>Learn enough R to be productive</li>
+            <li>Learn how to learn R</li>
+            <li>Understand R's strengths &amp; weaknesses</li>
+            <li>Demonstrate real-world usage
+              <ul>
+                <li>Mostly loading and munging data</li>
+                <li>A little bit of analysis/visualization</li>
+              </ul>
+              </li>
+            <li><i>Not</i> convince you R is easy</li>
+            <li><i>Not</i> teach statistics</li>
+            <li><i>Not</i> show everything that R can do</li>
+          </ul>
+<hr>
+          <p>Some broad overview of R is needed first, but the goal is to spend as much time as possible in front of an R session, working through two case studies.</p>
+        </section>
         <section>
 	  <section>
 	    <h2>What is R</h2>
@@ -90,7 +108,6 @@
               <li>Manual data entry</li>
               <li>One-off simple calculations</li>
               <li>You <i>really</i> need that 3-D pie chart</li>
-              <li>Results unlikely to influence important decisions</li>
 	    </ul>
           </section>
           
@@ -100,6 +117,11 @@
           <h2>Installing R</h2>
           <p><a href="http://cran.rstudio.com/bin/windows/base/">Download R for Windows</a></p>
           <p><a href="http://cran.rstudio.com/bin/windows/base/">Download RStudio IDE</a> (optional, requires R)</p>
+<hr>
+          <p>Install packages that we'll be using</p>
+          <ul>
+            <li><code>install.packages(c("plyr", "ggplot2"))</code></li>
+          </ul>
         </section>
 
         <section>
@@ -126,48 +148,36 @@
           <section>
 
             <p>R can add</p>
-            <pre><code class="lang-r">
-&gt; 1.9+1
-[1] 2.9
-            </code></pre>
+            <pre><code class="lang-r">&gt; 1.9+1
+[1] 2.9</code></pre>
           </section>
 
           <section>
             <p>R can add vectors...</p>
-            <pre><code class="lang-r">
-&gt; c(1,10) + c(2,20)
-[1]  3 30
-            </code></pre>
+            <pre><code class="lang-r">&gt; c(1,10) + c(2,20)
+[1]  3 30</code></pre>
 
             <p>store and recall variables,</p>
-            <pre><code class="lang-r">
-&gt; odds <- seq(from=1, to=30, by=2)
+            <pre><code class="lang-r">&gt; odds <- seq(from=1, to=30, by=2)
 &gt; odds
- [1]  1  3  5  7  9 11 13 15 17 19 21 23 25 27 29
-            </code></pre>
+ [1]  1  3  5  7  9 11 13 15 17 19 21 23 25 27 29</code></pre>
             <p>and summarize them.</p>
-            <pre><code class="lang-r">
-&gt; summary(x)
+            <pre><code class="lang-r">&gt; summary(x)
    Min. 1st Qu.  Median    Mean 3rd Qu.    Max. 
-      1       8      15      15      22      29 
-            </code></pre>
+      1       8      15      15      22      29</code></pre>
           </section>
 
           <section>
             <p>Variables can be listed and deleted</p>
-            <pre><code class="lang-r">
-&gt; ls()
+            <pre><code class="lang-r">&gt; ls()
 [1] "odds"
-&gt; rm(odds)
-            </code></pre>
+&gt; rm(odds)</code></pre>
 
             <p>Misc. other commands</p>
-            <pre><code class="no-highlight">
-&gt; history()    # list all commands entered
+            <pre><code class="no-highlight">&gt; history()    # list all commands entered
 &gt; ?name        # show online help for package or function "name"
 &gt; ??name       # search online help for anything containing "name"
-&gt; help.start() # browse a local webserver hosting the R manual/reference
-            </code></pre>
+&gt; help.start() # browse a local copy of the R reference docs</code></pre>
           </section>
 
         </section>
@@ -186,62 +196,47 @@
 
           <section>
             <h2>Loading CSV (simple)</h2>
-            <p><pre><code class="no-highlight">
-first,last
+            <p><pre><code class="no-highlight">first,last
 max,theiler
-john,enders
-            </code></pre></p>
-            <p><pre><code class="lang-r">
-&gt; read.csv("names.csv")
-              </code></pre></p>
-            <p><pre><code class="no-highlight">
-  first    last
+john,enders</code></pre></p>
+            <p><pre><code class="lang-r">&gt; read.csv("names.csv")              </code></pre></p>
+            <p><pre><code class="no-highlight">  first    last
 1   max theiler
-2  john  enders
-              </code></pre></p>
+2  john  enders</code></pre></p>
           </section>
           <section>
             <h2>Loading CSV, pt2</h2>
-            <p><pre><code class="no-highlight">
-Some uncommented junk in the header
+            <p><pre><code class="no-highlight">Some uncommented junk in the header
 max  $  theiler $ 1899$US$"Delimiter $ in quotes"
 # just a comment followed by a blank line
 
-john $  enders  $ 1897$ZA$
-            </code></pre></p>
-            <p><pre><code class="lang-r">
-&gt; read.csv("names2.csv",
-         header=FALSE, sep="$", skip=1, strip.white=TRUE, comment.char="#",
-         col.names=c("first","last","birth.year","birth.country","comment"))
-            </code></pre></p>
-            <p><pre><code class="no-highlight">
-  first    last birth.year birth.country               comment
+john $  enders  $ 1897$ZA$</code></pre></p>
+            <p><pre><code class="lang-r">&gt; read.csv("names2.csv",
+         header=FALSE, sep="$",
+         skip=1, strip.white=TRUE,
+         comment.char="#",
+         col.names=c("first","last","birth.year",
+                     "birth.country","comment"))</code></pre></p>
+            <p><pre><code class="no-highlight">  first    last birth.year birth.country               comment
 1   max theiler       1899            US Delimiter $ in quotes
-2  john  enders       1897            ZA
-            </code></pre></p>
+2  john  enders       1897            ZA</code></pre></p>
           </section>
 
           <section>
             <h2>Loading CSV, pt3</h2>
             <p>Override default types</p>
-            <p><pre><code class="no-highlight">
-userid,name,age,phone
+            <p><pre><code class="no-highlight">userid,name,age,phone
 100,max,45,555-0000
-101,john,22,555-2222
-            </code></pre></p>
-            <p><pre><code class="lang-r">
-&gt; x <- read.csv("names3.csv", 
-                colClasses=c("character", "factor", "numeric", "character"))
-            </code></pre></p>
+101,john,22,555-2222</code></pre></p>
+            <p><pre><code class="lang-r">&gt; x <- read.csv("names3.csv", 
+                colClasses=c("character", "factor", "numeric", "character"))</code></pre></p>
             <p>Check the structure</p>
-            <p><pre><code class="lang-r">
-&gt; str(x)
+            <p><pre><code class="lang-r">&gt; str(x)
 'data.frame':	2 obs. of  4 variables:
  $ userid: chr  "100" "101"
  $ name  : Factor w/ 2 levels "john","max": 2 1
  $ age   : num  45 22
- $ phone : chr  "555-0000" "555-2222"
-            </code></pre></p>
+ $ phone : chr  "555-0000" "555-2222"</code></pre></p>
           </section>
 
         </section>
@@ -282,84 +277,63 @@ userid,name,age,phone
           <section>
             <h2>First Look</h2>
             <p>If you suspect delimited data, start with <code>read.csv</code> and peek at the first few rows.</p>
-            <p><pre><code class="lang-r">
-s <-read.csv("treasurehunt_alpha_httpd_access.log",nrows=5)                  
-            </code></pre></p>
+            <p><pre><code class="lang-r">s <-read.csv("treasurehunt_alpha_httpd_access.log",nrows=5)</code></pre></p>
             <p>Use <code>View(s)</code> to see the raw data.  Datatypes are shown with <code>str(s)</code>.</p>
             <p>Issues noted: no header, space delimited, "-" for blanks, missing fields...</p>
           </section>
           <section>
             <h2>Reading Full Dataset</h2>
-            <p><pre><code class="lang-r">
-s <-read.table("treasurehunt_alpha_httpd_access.log",
-               fill=TRUE,                # missing elements set as blank
+            <p><pre><code class="lang-r">s <-read.table("treasurehunt_alpha_httpd_access.log",
+               fill=TRUE,       # missing fields set as blank
                na.strings = "-",         # "-" set to NA
-               stringsAsFactors = FALSE) # do not use factors
-            </code></pre></p>
+               stringsAsFactors = FALSE) # do not use factors</code></pre></p>
             <p>Get a better look at identified columns, and assign names<p>
-            <p><pre><code class="lang-r">
-colnames(s) <- c("client", "identd", "userid",
+            <p><pre><code class="lang-r">colnames(s) <- c("client", "identd", "userid",
                  "date.1", "date.2", "request",
                  "status", "size",
-                 "referrer", "useragent")
-            </code></pre></p>
+                 "referrer", "useragent")</code></pre></p>
           </section>
           <section>
             <h2>Discarding Data</h2>
             <p>If we have data we know will not be used, go ahead and discard it early on.</p>
-            <p><pre><code class="lang-r">
-> summary(s$identd)
+            <p><pre><code class="lang-r">> summary(s$identd)
    Mode    NA's 
-logical    2522 
-            </code></pre></p>
+logical    2522</code></pre></p>
             <p>Set a check so that the script will error out if we ever encounter values here.  Then, we can confidently delete it.</p>
-            <p><pre><code class="lang-r">
-stopifnot(is.na(s$identd))
-            </code></pre></p>
-            <p><pre><code class="lang-r">
-s$identd <- NULL
-            </code></pre></p>
+            <p><pre><code class="lang-r">stopifnot(is.na(s$identd))</code></pre></p>
+            <p><pre><code class="lang-r">s$identd <- NULL</code></pre></p>
           </section>
           <section>
             <h2>Parsing Dates</h2>
-            <p><pre><code class="lang-r">
-# Combine date components
+            <p><pre><code class="lang-r"># Combine date components
 s$req.date <- apply(s[,c("date.1","date.2")], 1, paste, collapse=" ")
 # Parse these as real dates:
 s$req.date <- as.POSIXct(strptime(s$req.date, "[%d/%b/%Y:%T %z]"))
 # Delete the old date columns
-s[,c("date.1","date.2")] <- list(NULL)
-            </code></pre></p>
+s[,c("date.1","date.2")] <- list(NULL)</code></pre></p>
           </section>
           <section>
             <h2>Categorical Variables</h2>
             <p>HTTP status looks like a number, but we should not treat it like one.  Why?  Because taking the average makes no sense.  Reassign it as a categorical variable (a factor).
-            <p><pre><code class="lang-r">
-s$status <- factor(s$status)
-            </code></pre></p>
+            <p><pre><code class="lang-r">s$status <- factor(s$status)</code></pre></p>
           </section>
           <section>
             <h2>Rewriting Variables</h2>
             <p>When no data was sent, this was recorded as a blank or <code>NA</code> value.  We know this really means "0 bytes sent", so we can rewrite the column.</p>
             <p><code>with()</code> lets us refer to a dataframes variables with the <code>df$var</code> syntax.</p>
             <p><code>ifelse()</code> runs a test on a vector, and replaces values based on whether the test was true.</p>
-            <p><pre><code class="lang-r">
-s$size <- with(s,
+            <p><pre><code class="lang-r">s$size <- with(s,
                  ifelse(is.na(size),
                         yes=0,
-                        no=size))
-            </code></pre></p>
+                        no=size))</code></pre></p>
           </section>
           <section>
             <h2>Merging Datasets (prep)</h2>
             <p>Often you will need to incorporate multiple datasets together for an analysis.</p>
             <p>Lets read in another dataset, giving us GeoIP data for the IP's in the web logs.</p>
-            <p><pre><code class="lang-r">
-geoip <- read.csv("treasure_hunt_geoip.csv",
-                  na.strings="", stringsAsFactors=FALSE)
-            </code></pre></p>
-            <p><pre><code class="lang-r">
-> str(geoip)
+            <p><pre><code class="lang-r">geoip <- read.csv("treasure_hunt_geoip.csv",
+                  na.strings="", stringsAsFactors=FALSE)</code></pre></p>
+            <p><pre><code class="lang-r">&gt; str(geoip)
 'data.frame':	40 obs. of  8 variables:
  $ IP          : chr  "128.111.48.107" ...
  $ host        : chr  "fleming.cs.ucsb.edu" ...
@@ -368,42 +342,34 @@ geoip <- read.csv("treasure_hunt_geoip.csv",
  $ postal.code : int  93106 10469 ...
  $ longitude   : num  -120 ...
  $ latitude    : num  34.4 ...
- $ match       : chr  "fleming.cs.ucsb.edu" ...
-            </code></pre></p>
+ $ match       : chr  "fleming.cs.ucsb.edu" ...</code></pre></p>
           </section>
           <section>
             <h2>Merging Datasets (prep)</h2>
             <p>One problem... our original dataset resolved some, but not all client addresses</p>
-            <p><pre><code class="lang-r">            
-geoip <- rbind(geoip,geoip) # duplicate all rows
+            <p><pre><code class="lang-r">geoip <- rbind(geoip,geoip) # duplicate all rows
 geoip$match <- geoip$IP # make a new "match" var from IP
 half <- 1:nrow(geoip)/2 # a sequence of half our rows
 # overwrite the IP with Host for half the rows
-geoip[half,"match"] <- geoip[half,"host"] 
-            </code></pre></p>
+geoip[half,"match"] <- geoip[half,"host"]</code></pre></p>
           </section>
           <section>
             <h2>Merging Datasets</h2>
             <p>We're finally ready to merge.  We'll use the equivalent of a left outer join.</p>
-            <p><pre><code class="lang-r">      
-s.loc <- merge(s,     # left "table"
+            <p><pre><code class="lang-r">s.loc <- merge(s,     # left "table"
                geoip, # right "table"
                by.x="client", # match this var
                by.y="match",  # against this
-               all.x=TRUE)    # don't drop rows from s
-            </code></pre></p>
+               all.x=TRUE)    # don't drop rows from s</code></pre></p>
             <p>Now, <code>s.loc</code> contains all the requests, along with location data.</p>
-            <p><pre><code class="lang-r">      
-> s.loc[50,c("client", "status", "city")]
+            <p><pre><code class="lang-r">> s.loc[50,c("client", "status", "city")]
           client status          city
-50 128.111.43.25    304 Santa Barbara
-            </code></pre></p>
+50 128.111.43.25    304 Santa Barbara</code></pre></p>
           </section>
           <section>
             <h2>Tabulating</h2>
             <p>Our first simple analysis... lets put our GeoIP data to work and understand how cities and HTTP status codes relate:</p>
-            <p><pre><code class="lang-r">      
-> table(s.loc$status, s.loc$city, useNA="ifany")
+            <p><pre><code class="lang-r">> table(s.loc$status, s.loc$city, useNA="ifany")
      
       Bronx King Of Prussia Santa Barbara &lt;NA&gt;
   200     1               1           742    7
@@ -414,8 +380,7 @@ s.loc <- merge(s,     # left "table"
   404     0               0          1668    0
   405     0               0             2    0
   408     0               0             2    0
-  501     0               0             9    0         
-          </code></pre></p>
+  501     0               0             9    0</code></pre></p>
           </section>
         </section>
 
@@ -436,14 +401,11 @@ s.loc <- merge(s,     # left "table"
 
           <section>
 	    <h2>Simple Example</h2>
-            <p><pre><code class="lang-r">
-ddply(s.loc, # dataset
+            <p><pre><code class="lang-r">ddply(s.loc, # dataset
       .(status), # Split on HTTP status
       summarize, # Function to Apply
-        max.response = max(size)) # Arguments
-            </code></pre></p>
-            <p><pre><code class="lang-r">
-  status max.response
+        max.response = max(size)) # Arguments</code></pre></p>
+            <p><pre><code class="lang-r">  status max.response
 1    200        44192
 2    301          293
 3    304            0
@@ -452,20 +414,16 @@ ddply(s.loc, # dataset
 6    404          386
 7    405          310
 8    408            0
-9    501          332
-            </code></pre></p>
+9    501          332</code></pre></p>
           </section>
 
           <section>
 	    <h2>Another Example</h2>
-            <p><pre><code class="lang-r">
-ddply(s.loc, .(country.code, status), summarize,
+            <p><pre><code class="lang-r">ddply(s.loc, .(country.code, status), summarize,
       size.total=sum(size, na.rm=TRUE), 
       size.mean=mean(size, na.rm=TRUE), 
-      request.count=length(size))
-            </code></pre></p>
-            <p><pre><code class="lang-r">
-   country.code status size.total size.mean request.count
+      request.count=length(size))</code></pre></p>
+            <p><pre><code class="lang-r">   country.code status size.total size.mean request.count
 1            TW    400        318  318.0000             1
 2            US    200    1151179 1547.2836           744
 3            US    301        585  292.5000             2
@@ -477,8 +435,7 @@ ddply(s.loc, .(country.code, status), summarize,
 9            US    408          0    0.0000             2
 10           US    501        978  108.6667             9
 11         &lt;NA&gt;    200      30082 4297.4286             7
-12         &lt;NA&gt;    304          0    0.0000             6
-            </code></pre></p>
+12         &lt;NA&gt;    304          0    0.0000             6</code></pre></p>
           </section>
 
         </section>
@@ -492,20 +449,21 @@ ddply(s.loc, .(country.code, status), summarize,
           <section>
             <h2>Parsing PCAP</h2>
             <p>R has no special tools for parsing PCAP, wireshark and snort are better tools for parsing network packets.  Here we extracted some basic IP, TCP, and HTTP attributes from the captures, resulting in about 6.9 million rows of tab-separated data.</p>
-            <p><pre><code class="lang-r">
-tshark -r ictf.pcap -T fields -e frame.time -e ip.src -e ip.dst -e ip.proto
-  -e tcp.srcport -e tcp.dstport -e http.request.method -e http.request.uri
-  -e http.host -e http.authorization -e http.connection -e http.cookie
-  -e http.response.code -e http.user_agent -E header=y -E separator=/t
-  -E quote=n -E occurrence=f > ictf2003.tsv
-               </code></pre></p>
+            <p><pre><code class="lang-r">tshark -r ictf.pcap -T fields -e frame.time -e ip.src
+  -e ip.dst -e ip.proto -e tcp.srcport
+  -e tcp.dstport -e http.request.method
+  -e http.request.uri -e http.host 
+  -e http.authorization -e http.connection
+  -e http.cookie -e http.response.code
+  -e http.user_agent -E header=y
+  -E separator=/t -E quote=n
+  -E occurrence=f > ictf2003.tsv</code></pre></p>
           </section>
 
           <section>
             <h2>Loading in R</h2>
             <p>Data is easily readable in R, with some important additional flags to <code>read.table()</code>, and timestamp parsing.</p>
-            <p><pre><code class="lang-r">
-i <- read.table("ictf2003.tsv",
+            <p><pre><code class="lang-r">i <- read.table("ictf2003.tsv",
                 sep="\t",
                 header=TRUE,
                 na.strings="",
@@ -516,252 +474,28 @@ i <- read.table("ictf2003.tsv",
                              rep("factor", 6), 
                              "character",
                              rep("factor", 6)))
-i$frame.time <- strptime(i$frame.time, "%b  %e, %Y %H:%M:%OS")
-               </code></pre></p>
+i$frame.time <- strptime(i$frame.time, "%b  %e, %Y %H:%M:%OS")</code></pre></p>
+          </section>
+          <section>
+            <h2>Trellis/Faceted Plots</h2>
+            <p>Facets, or "trellis" plots, are very useful with complex datasets that would otherwise have too much overlapping data to be legible.  Adding "jitter" to the data can also help when overlap would obscure data.</p>
+            <img src="data/plot_http.methods.top.5.src.ips.png" width="70%" height="70%"/>
+          </section>
+          <section>
+            <h2>Trellis Contd</h2>
+            <p>That's a really complicated plot to make, right?<p>
+<p><pre><code class="lang-r">qplot(frame.time,  # X-axis, time
+      ip.src,      # Y-axis, source IP
+      data=i.top5, # Dataset
+      colour=http.request.method, # What to color
+      geom="jitter" # How to draw data, "jittered points"
+      facets=~http.request.method) # What to repeat in each facet</code></pre></p>
           </section>
         </section>
 
 <!-- http://ictf.cs.ucsb.edu/archive/iCTF_2003/setup.html -->
 	<section>
-	  <h2>Works in Mobile Safari</h2>
-	  <p>
-	    Try it out! You can swipe through the slides and pinch your way to the overview.
-	  </p>
-	</section>
-
-	<section>
-	  <h2>Marvelous Unordered List</h2>
-	  <ul>
-	    <li>No order here</li>
-	    <li>Or here</li>
-	    <li>Or here</li>
-	    <li>Or here</li>
-	  </ul>
-	</section>
-
-	<section>
-	  <h2>Fantastic Ordered List</h2>
-	  <ol>
-	    <li>One is smaller than...</li>
-	    <li>Two is smaller than...</li>
-	    <li>Three!</li>
-	  </ol>
-	</section>
-
-	<section data-markdown>
-	  <script type="text/template">
-	    ## Markdown support
-
-	    For those of you who like that sort of thing. Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
-
-	    ```
-	    <section data-markdown>
-	      ## Markdown support
-
-	      For those of you who like that sort of thing.
-	      Instructions and a bit more info available [here](https://github.com/hakimel/reveal.js#markdown).
-	    </section>
-	    ```
-	  </script>
-	</section>
-
-	<section id="transitions">
-	  <h2>Transition Styles</h2>
-	  <p>
-	    You can select from different transitions, like: <br>
-	    <a href="?transition=cube#/transitions">Cube</a> -
-	    <a href="?transition=page#/transitions">Page</a> -
-	    <a href="?transition=concave#/transitions">Concave</a> -
-	    <a href="?transition=zoom#/transitions">Zoom</a> -
-	    <a href="?transition=linear#/transitions">Linear</a> -
-	    <a href="?transition=fade#/transitions">Fade</a> -
-	    <a href="?transition=none#/transitions">None</a> -
-	    <a href="?#/transitions">Default</a>
-	  </p>
-	</section>
-
-	<section id="themes">
-	  <h2>Themes</h2>
-	  <p>
-	    Reveal.js comes with a few themes built in: <br>
-	    <a href="?#/themes">Default</a> -
-	    <a href="?theme=sky#/themes">Sky</a> -
-	    <a href="?theme=beige#/themes">Beige</a> -
-	    <a href="?theme=simple#/themes">Simple</a> -
-	    <a href="?theme=serif#/themes">Serif</a> -
-	    <a href="?theme=night#/themes">Night</a> <br>
-	    <a href="?theme=moon#/themes">Moon</a> -
-	    <a href="?theme=solarized#/themes">Solarized</a>
-	  </p>
-	  <p>
-	    <small>
-	      * Theme demos are loaded after the presentation which leads to flicker. In production you should load your theme in the <code>&lt;head&gt;</code> using a <code>&lt;link&gt;</code>.
-	    </small>
-	  </p>
-	</section>
-
-	<section>
-	  <h2>Global State</h2>
-	  <p>
-	    Set <code>data-state="something"</code> on a slide and <code>"something"</code>
-	    will be added as a class to the document element when the slide is open. This lets you
-	    apply broader style changes, like switching the background.
-	  </p>
-	</section>
-
-	<section data-state="customevent">
-	  <h2>Custom Events</h2>
-	  <p>
-	    Additionally custom events can be triggered on a per slide basis by binding to the <code>data-state</code> name.
-	  </p>
-	  <pre><code data-trim contenteditable style="font-size: 18px; margin-top: 20px;">
-              Reveal.addEventListener( 'customevent', function() {
-	      console.log( '"customevent" has fired' );
-              } );
-	  </code></pre>
-	</section>
-
-	<section>
-	  <section data-background="#007777">
-	    <h2>Slide Backgrounds</h2>
-	    <p>
-	      Set <code>data-background="#007777"</code> on a slide to change the full page background to the given color. All CSS color formats are supported.
-	    </p>
-	    <a href="#" class="image navigate-down">
-	      <img width="178" height="238" src="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" alt="Down arrow">
-	    </a>
-	  </section>
-	  <section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png">
-	    <h2>Image Backgrounds</h2>
-	    <pre><code>&lt;section data-background="image.png"&gt;</code></pre>
-	  </section>
-	  <section data-background="https://s3.amazonaws.com/hakim-static/reveal-js/arrow.png" data-background-repeat="repeat" data-background-size="100px">
-	    <h2>Repeated Image Backgrounds</h2>
-	    <pre><code style="word-wrap: break-word;">&lt;section data-background="image.png" data-background-repeat="repeat" data-background-size="100px"&gt;</code></pre>
-	  </section>
-	</section>
-
-	<section data-transition="linear" data-background="#4d7e65" data-background-transition="slide">
-	  <h2>Background Transitions</h2>
-	  <p>
-	    Pass reveal.js the <code>backgroundTransition: 'slide'</code> config argument to make backgrounds slide rather than fade.
-	  </p>
-	</section>
-
-	<section data-transition="linear" data-background="#8c4738" data-background-transition="slide">
-	  <h2>Background Transition Override</h2>
-	  <p>
-	    You can override background transitions per slide by using <code>data-background-transition="slide"</code>.
-	  </p>
-	</section>
-
-	<section>
-	  <h2>Clever Quotes</h2>
-	  <p>
-	    These guys come in two forms, inline: <q cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-	      &ldquo;The nice thing about standards is that there are so many to choose from&rdquo;</q> and block:
-	  </p>
-	  <blockquote cite="http://searchservervirtualization.techtarget.com/definition/Our-Favorite-Technology-Quotations">
-	    &ldquo;For years there has been a theory that millions of monkeys typing at random on millions of typewriters would
-	    reproduce the entire works of Shakespeare. The Internet has proven this theory to be untrue.&rdquo;
-	  </blockquote>
-	</section>
-
-	<section>
-	  <h2>Pretty Code</h2>
-	  <pre><code data-trim contenteditable>
-              function linkify( selector ) {
-              if( supports3DTransforms ) {
-
-              var nodes = document.querySelectorAll( selector );
-
-              for( var i = 0, len = nodes.length; i &lt; len; i++ ) {
-              var node = nodes[i];
-
-              if( !node.className ) {
-              node.className += ' roll';
-              }
-              }
-              }
-              }
-	  </code></pre>
-	  <p>Courtesy of <a href="http://softwaremaniacs.org/soft/highlight/en/description/">highlight.js</a>.</p>
-	</section>
-
-	<section>
-	  <h2>Intergalactic Interconnections</h2>
-	  <p>
-	    You can link between slides internally,
-	    <a href="#/2/3">like this</a>.
-	  </p>
-	</section>
-
-	<section>
-	  <section id="fragments">
-	    <h2>Fragmented Views</h2>
-	    <p>Hit the next arrow...</p>
-	    <p class="fragment">... to step through ...</p>
-	    <ol>
-	      <li class="fragment"><code>any type</code></li>
-	      <li class="fragment"><em>of view</em></li>
-	      <li class="fragment"><strong>fragments</strong></li>
-	    </ol>
-
-	    <aside class="notes">
-	      This slide has fragments which are also stepped through in the notes window.
-	    </aside>
-	  </section>
-	  <section>
-	    <h2>Fragment Styles</h2>
-	    <p>There's a few styles of fragments, like:</p>
-	    <p class="fragment grow">grow</p>
-	    <p class="fragment shrink">shrink</p>
-	    <p class="fragment roll-in">roll-in</p>
-	    <p class="fragment fade-out">fade-out</p>
-	    <p class="fragment highlight-red">highlight-red</p>
-	    <p class="fragment highlight-green">highlight-green</p>
-	    <p class="fragment highlight-blue">highlight-blue</p>
-	    <p class="fragment current-visible">current-visible</p>
-	    <p class="fragment highlight-current-blue">highlight-current-blue</p>
-	  </section>
-	</section>
-
-	<section>
-	  <h2>Spectacular image!</h2>
-	  <a class="image" href="http://lab.hakim.se/meny/" target="_blank">
-	    <img width="320" height="299" src="http://s3.amazonaws.com/hakim-static/portfolio/images/meny.png" alt="Meny">
-	  </a>
-	</section>
-
-	<section>
-	  <h2>Export to PDF</h2>
-	  <p>Presentations can be <a href="https://github.com/hakimel/reveal.js#pdf-export">exported to PDF</a>, below is an example that's been uploaded to SlideShare.</p>
-	  <iframe id="slideshare" src="http://www.slideshare.net/slideshow/embed_code/13872948" width="766" height="600" style="margin:0;overflow:hidden;border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen> </iframe>
-	  <script>
-	    document.getElementById('slideshare').attributeName = 'allowfullscreen';
-	  </script>
-	</section>
-
-	<section>
-	  <h2>Take a Moment</h2>
-	  <p>
-	    Press b or period on your keyboard to enter the 'paused' mode. This mode is helpful when you want to take distracting slides off the screen
-	    during a presentation.
-	  </p>
-	</section>
-
-	<section>
-	  <h2>Stellar Links</h2>
-	  <ul>
-	    <li><a href="http://slid.es">Try the online editor</a></li>
-	    <li><a href="https://github.com/hakimel/reveal.js">Source code on GitHub</a></li>
-	    <li><a href="http://twitter.com/hakimel">Follow me on Twitter</a></li>
-	  </ul>
-	</section>
-
-	<section>
-	  <h1>THE END</h1>
-	  <h3>BY Hakim El Hattab / hakim.se</h3>
+          <img src="img/the_end.jpg">
 	</section>
 
       </div>
