@@ -64,3 +64,10 @@ ggsave(g, file="top5.http_requests_by_method.all.png", width=8, height=4)
 # qplot version of the above, without the additional subsetting, and without some additional labelling
 qplot(frame.time, ip.src, data=i.top5, colour=http.request.method, facets=~http.request.method, geom="jitter")
 
+# Heatmap of the top 5 source and destination IPs
+#find top 5 dest ips
+dst.ip.counts <- as.data.frame(table(i.http.method$ip.dst))
+# Order the tabulation by frequency, take the top 5, and just get the IP
+top5.dst.ips <- head(dst.ip.counts[order(-dst.ip.counts$Freq),1],n=5)
+# Filter the HTTP data to only those requests where the source is in the top 5
+i.top5.dst <- i.http.method[i.http.method$ip.dst %in% top5.dst.ips,]
