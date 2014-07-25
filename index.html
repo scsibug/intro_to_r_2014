@@ -280,7 +280,7 @@ john $  enders  $ 1897$ZA$</code></pre></p>
           <section>
             <h2>First Look</h2>
             <p>If you suspect delimited data, start with <code>read.csv</code> and peek at the first few rows.</p>
-            <p><pre><code class="lang-r">s <-read.csv("treasurehunt_alpha_httpd_access.log",nrows=5)</code></pre></p>
+            <p><pre><code class="lang-r">s &lt;- read.csv("treasurehunt_alpha_httpd_access.log",nrows=5)</code></pre></p>
             <p>Use <code>View(s)</code> to see the raw data.  Datatypes are shown with <code>str(s)</code>.</p>
             <p>Issues noted: no header, space delimited, "-" for blanks, missing fields...</p>
           </section>
@@ -314,11 +314,20 @@ s$req.date <- apply(s[,c("date.1","date.2")], 1, paste, collapse=" ")
 s$req.date <- as.POSIXct(strptime(s$req.date, "[%d/%b/%Y:%T %z]"))
 # Delete the old date columns
 s[,c("date.1","date.2")] <- list(NULL)</code></pre></p>
+<p><code>apply</code> runs a function (such as <code>paste</code> for concatenation) across either all the rows (<code>1</code>) or columns (<code>2</code>).</p>
+<img src="img/apply_diagram.png" width="60%" height="60%">
           </section>
           <section>
             <h2>Categorical Variables</h2>
             <p>HTTP status looks like a number, but we should not treat it like one.  Why?  Because taking the average makes no sense.  Reassign it as a categorical variable (a factor).
             <p><pre><code class="lang-r">s$status <- factor(s$status)</code></pre></p>
+            <p>Why Factors?</p>
+            <ul>
+              <li>Range of valid values can be preserved, even if all are not present</li>
+              <li>Order can be independent of alphabetical</li>
+              <li>Used to save significant memory, no longer the case</li>
+              <li>Sometimes annoying, sometimes very helpful!</li>
+            </ul>
           </section>
           <section>
             <h2>Rewriting Variables</h2>
@@ -407,7 +416,7 @@ geoip[half,"match"] <- geoip[half,"host"]</code></pre></p>
             <p><pre><code class="lang-r">ddply(s.loc, # dataset
       .(status), # Split on HTTP status
       summarize, # Function to Apply
-        max.response = max(size)) # Arguments</code></pre></p>
+      max.response = max(size)) # Arguments</code></pre></p>
             <p><pre><code class="lang-r">  status max.response
 1    200        44192
 2    301          293
@@ -516,11 +525,23 @@ i.top5 &lt;- i.http.method[i.http.method$ip.src %in% top5.ips,]</code></pre></p>
 
           </section>
         </section>
-<!--
+
+	<section data-background="img/market.jpg" style="background: rgba(119,119,119,0.5); color: white">
+          <h2>Resources</h2>
+          <ul>
+            <li><a href="http://www.meetup.com/Dallas-R-Users-Group/">Dallas R Users Group</a></li>
+            <li><a href="http://www.springer.com/series/6991">Springer's User R! Series</a></li>
+            <li><a href="http://tryr.codeschool.com/">Try R Codeschool</a></li>
+            <li><a href="http://cran.r-project.org/web/views/">~6000 R Packages on CRAN</a></li>
+            <li><a href="http://www.statmethods.net/">StatMethods Blog</a></li>
+            <li><a href="http://cran.r-project.org/doc/manuals/R-intro.pdf">Official R Intro, updated with every R release</a></li>
+            <li><a href="http://stats.stackexchange.com/">CrossValidated: StackOverflow for Stats &amp; R</a></li>
+          </ul>
+        </section>
+
 	<section data-background="img/the_end.jpg" style="background: rgba(0,129,195,0); color: white">
           <h2>Thank You!</h2>
 	</section>
--->
       </div>
 
     </div>

@@ -53,6 +53,7 @@ top5.ips <- head(src.ip.counts[order(-src.ip.counts$Freq),1],n=5)
 # Filter the HTTP data to only those requests where the source is in the top 5
 i.top5 <- i.http.method[i.http.method$ip.src %in% top5.ips,]
 # Plot a facet with each of the common HTTP methods, showing traffic for the top 5 source IPs
+# This demonstrates some of the additional control you get from using the full ggplot, instead of qplot
 g <- ggplot(i.top5, aes(x=frame.time, y=ip.src ,color=http.request.method)) +
   geom_jitter(size=0.7, alpha=0.7) +
   facet_wrap(~http.request.method) +  # syntax is rows~columns
@@ -62,3 +63,4 @@ ggsave(g, file="top5.http_requests_by_method.all.png", width=8, height=4)
 
 # qplot version of the above, without the additional subsetting, and without some additional labelling
 qplot(frame.time, ip.src, data=i.top5, colour=http.request.method, facets=~http.request.method, geom="jitter")
+
